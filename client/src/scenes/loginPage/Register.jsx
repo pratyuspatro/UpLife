@@ -1,4 +1,3 @@
-import { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Button,
@@ -12,9 +11,12 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setLogin } from "state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
@@ -24,11 +26,6 @@ const registerSchema = yup.object().shape({
   location: yup.string().required("required"),
   occupation: yup.string().required("required"),
   picture: yup.string().required("required"),
-});
-
-const loginSchema = yup.object().shape({
-  email: yup.string().email("invalid email").required("required"),
-  password: yup.string().required("required"),
 });
 
 const initialValuesRegister = {
@@ -41,44 +38,11 @@ const initialValuesRegister = {
   picture: "",
 };
 
-const initialValuesLogin = {
-  email: "",
-  password: "",
-};
-
-const Form = () => {
+export const Register = () => {
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
-  const [isRegister, setIsRegister] = useState(false);
-  const [buttonName, setButtonName] = useState("Login");
-  console.log("login", isAdmin, isLogin, isRegister);
-
-  const updatePageType = () => {
-    if (isAdmin) {
-      setIsLogin(false);
-      setIsRegister(false);
-      setButtonName("Admin Login");
-      return;
-    }
-    if (isLogin) {
-      setIsLogin(false);
-      setIsRegister(true);
-      setIsAdmin(false);
-      setButtonName("Register");
-      return;
-    }
-    if (isRegister) {
-      setIsLogin(true);
-      setIsRegister(false);
-      setIsAdmin(false);
-      setButtonName("Login");
-      return;
-    }
-  };
 
   const register = async (values, onSubmitProps) => {
     // this allows us to send form info with image
@@ -102,62 +66,73 @@ const Form = () => {
     onSubmitProps.resetForm();
 
     if (savedUser) {
-      setIsLogin(true);
-      setIsRegister(false);
-      setIsAdmin(false);
-    }
-  };
-
-  const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("http://localhost:3001/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const loggedIn = await loggedInResponse.json();
-    onSubmitProps.resetForm();
-    if (loggedIn) {
-      dispatch(
-        setLogin({
-          user: loggedIn.user,
-          token: loggedIn.token,
-        })
-      );
       navigate("/home");
     }
   };
 
   const handleFormSubmit = async (values, onSubmitProps) => {
-    if (isLogin) await login(values, onSubmitProps);
-    if (isRegister) await register(values, onSubmitProps);
+    await register(values, onSubmitProps);
   };
 
   return (
-    <Formik
-      onSubmit={handleFormSubmit}
-      initialValues={isLogin ? initialValuesLogin : initialValuesRegister}
-      validationSchema={isLogin ? loginSchema : registerSchema}
-    >
-      {({
-        values,
-        errors,
-        touched,
-        handleBlur,
-        handleChange,
-        handleSubmit,
-        setFieldValue,
-        resetForm,
-      }) => (
-        <form onSubmit={handleSubmit}>
-          <Box
-            display="grid"
-            gap="30px"
-            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-            sx={{
-              "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-            }}
-          >
-            {isRegister && (
+    <>
+      <Box sx={{ flexGrow: 1 }} color={palette.primary.main}>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h2"
+              color="textSecondary"
+              component="div"
+              sx={{ flexGrow: 1, cursor: "pointer" }}
+              onClick={() => navigate("/")}
+            >
+              UpLife
+            </Typography>
+            <Button color="inherit" onClick={() => navigate("/login")}>
+              Login
+            </Button>
+            <Button color="inherit" onClick={() => navigate("/register")}>
+              Register
+            </Button>
+            <Button color="inherit" onClick={() => navigate("/admin")}>
+              Admin Login
+            </Button>
+          </Toolbar>
+        </AppBar>
+      </Box>
+      <Formik
+        onSubmit={handleFormSubmit}
+        initialValues={initialValuesRegister}
+        validationSchema={registerSchema}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          setFieldValue,
+          resetForm,
+        }) => (
+          <form onSubmit={handleSubmit}>
+            <Box
+              display="grid"
+              gap="30px"
+              gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+              sx={{
+                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+              }}
+            >
               <>
                 <TextField
                   label="First Name"
@@ -237,86 +212,43 @@ const Form = () => {
                   </Dropzone>
                 </Box>
               </>
-            )}
+            </Box>
 
-            <TextField
-              label="Email"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.email}
-              name="email"
-              error={Boolean(touched.email) && Boolean(errors.email)}
-              helperText={touched.email && errors.email}
-              sx={{ gridColumn: "span 4" }}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.password}
-              name="password"
-              error={Boolean(touched.password) && Boolean(errors.password)}
-              helperText={touched.password && errors.password}
-              sx={{ gridColumn: "span 4" }}
-            />
-          </Box>
-
-          {/* BUTTONS */}
-          <Box>
-            <Button
-              fullWidth
-              type="submit"
-              sx={{
-                m: "2rem 0",
-                p: "1rem",
-                backgroundColor: palette.primary.main,
-                color: palette.background.alt,
-                "&:hover": { color: palette.primary.main },
-              }}
-            >
-              {buttonName}
-            </Button>
-            <Typography
-              onClick={() => {
-                updatePageType();
-                resetForm();
-              }}
-              sx={{
-                textDecoration: "underline",
-                color: palette.primary.main,
-                "&:hover": {
-                  cursor: "pointer",
-                  color: palette.primary.light,
-                },
-              }}
-            >
-              {isLogin
-                ? "Don't have an account? Sign Up here."
-                : "Already have an account? Login here."}
-            </Typography>
-            <Typography
-              sx={{
-                textDecoration: "underline",
-                color: palette.primary.main,
-                "&:hover": {
-                  cursor: "pointer",
-                  color: palette.primary.light,
-                },
-              }}
-              onClick={() => {
-                setIsLogin(false);
-                setIsRegister(false);
-                setIsAdmin(true);
-              }}
-            >
-              ADMIN
-            </Typography>
-          </Box>
-        </form>
-      )}
-    </Formik>
+            {/* BUTTONS */}
+            <Box>
+              <Button
+                fullWidth
+                type="submit"
+                sx={{
+                  m: "2rem 0",
+                  p: "1rem",
+                  backgroundColor: palette.primary.main,
+                  color: palette.background.alt,
+                  "&:hover": { color: palette.primary.main },
+                }}
+              >
+                {Register}
+              </Button>
+              <Typography
+                onClick={() => {
+                  navigate("/login");
+                  resetForm();
+                }}
+                sx={{
+                  textDecoration: "underline",
+                  color: palette.primary.main,
+                  "&:hover": {
+                    cursor: "pointer",
+                    color: palette.primary.light,
+                  },
+                }}
+              >
+                Already have an account? Login here.
+              </Typography>
+            </Box>
+          </form>
+        )}
+      </Formik>
+    </>
   );
 };
-
-export default Form;
