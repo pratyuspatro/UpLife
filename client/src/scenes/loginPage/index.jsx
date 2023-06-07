@@ -1,11 +1,20 @@
-import React from 'react';
-import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
-import Form from "./Form";
+import React from "react";
+import { useTheme, useMediaQuery } from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
 import logo from "../../images/logo_transparent.png";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const theme = useTheme();
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
+  const navigate = useNavigate();
+
   return (
     /* <Box>
       <Box
@@ -38,19 +47,39 @@ const LoginPage = () => {
        textAlign="center"
      >*/
     <Box>
-      {/* Header */}
-      <Box
-        width="100%"
-        bgcolor={theme.palette.primary.main}
-        py={2}
-        textAlign="center"
-      >
-        <Typography variant="h2" color="textSecondary">
-          UpLife
-        </Typography>
+      <Box sx={{ flexGrow: 1 }} color={theme.palette.primary.main}>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h2"
+              color="textSecondary"
+              component="div"
+              sx={{ flexGrow: 1, cursor: "pointer" }}
+              onClick={() => navigate("/")}
+            >
+              UpLife
+            </Typography>
+            <Button color="inherit" onClick={() => navigate("/login")}>
+              Login
+            </Button>
+            <Button color="inherit" onClick={() => navigate("/register")}>
+              Register
+            </Button>
+            <Button color="inherit" onClick={() => navigate("/admin")}>
+              Admin Login
+            </Button>
+          </Toolbar>
+        </AppBar>
       </Box>
-
-      {/* Content */}
       <Box
         display="flex"
         flexDirection={isNonMobileScreens ? "row" : "column"}
@@ -58,7 +87,6 @@ const LoginPage = () => {
         justifyContent="center"
         p={3}
       >
-        {/* Left section */}
         <Box
           flex="1"
           display="flex"
@@ -76,7 +104,6 @@ const LoginPage = () => {
           </Typography>
         </Box>
 
-        {/* Image section */}
         <Box
           flex="1"
           display="flex"
@@ -89,33 +116,30 @@ const LoginPage = () => {
             style={{ width: "100%", height: "100%", borderRadius: "1rem" }}
           />
         </Box>
-
-        {/* Right section */}
-        <Box
-          flex="1"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          py={2}
-        >
-          <Form />
-        </Box>
       </Box>
-
-      {/* Footer */}
-      <Box
-        width="100%"
-        bgcolor={theme.palette.primary.main}
-        py={2}
-        textAlign="center"
+      {/* <Box
+      flex="1"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      py={2}
       >
-        <Typography variant="body2" color="textSecondary">
-          &copy; 2023 Uplife. All rights reserved.
-        </Typography>
+      <Form />
       </Box>
+    </Box> */}
+      <footer>
+        <Box
+          width="100%"
+          bgcolor={theme.palette.primary.main}
+          py={2}
+          textAlign="center"
+        >
+          <Typography variant="body2" color="textSecondary">
+            &copy; 2023 Uplife. All rights reserved.
+          </Typography>
+        </Box>
+      </footer>
     </Box>
-    //</Box>
-    //</Box>
   );
 };
 
